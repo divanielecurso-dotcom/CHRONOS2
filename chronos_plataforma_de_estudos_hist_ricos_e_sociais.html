@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHRONOS - Plataforma de Estudos Históricos e Sociais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        chronos: {
+                            dark: '#2c1e16',       /* Deep espresso/charcoal brown */
+                            primary: '#8b5a2b',    /* Classic saddle brown */
+                            secondary: '#d2b48c',  /* Tan/Parchment */
+                            accent: '#cd853f',     /* Peru brown for highlights */
+                            light: '#fdf5e6',      /* Old lace / off-white */
+                            text: '#4a3728'        /* Dark brown text for better readability on light bg */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .tab-active {
+            border-bottom: 2px solid #8b5a2b;
+            color: #8b5a2b;
+            font-weight: 600;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(139, 90, 43, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-chronos-light text-chronos-text font-sans antialiased selection:bg-chronos-primary selection:text-white flex flex-col min-h-screen">
+
+    <nav class="bg-[#faf0e6]/90 backdrop-blur-md sticky top-0 z-50 border-b border-[#e8dcc7] shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-chronos-primary to-chronos-accent flex items-center justify-center text-white shadow-lg transform group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-hourglass-half text-xl"></i>
+                        </div>
+                        <span class="font-serif font-bold text-2xl text-chronos-dark tracking-tight">CHRONOS</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#inicio" class="text-chronos-text hover:text-chronos-primary font-medium transition-colors">Início</a>
+                    <a href="#disciplinas" class="text-chronos-text hover:text-chronos-primary font-medium transition-colors">Disciplinas</a>
+                    <a href="#cursos" class="text-chronos-text hover:text-chronos-primary font-medium transition-colors">Cursos</a>
+                    <a href="#pesquisadores" class="text-chronos-text hover:text-chronos-primary font-medium transition-colors">Pesquisadores</a>
+                    <button class="text-chronos-primary hover:text-[#7a4e25] font-medium transition-colors" onclick="openLoginModal()">
+                        Entrar
+                    </button>
+                    <button class="bg-chronos-primary hover:bg-[#7a4e25] text-white px-5 py-2 rounded-full font-medium transition-colors shadow-md shadow-chronos-primary/30" onclick="openSignupModal()">
+                        Cadastrar
+                    </button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button type="button" class="text-chronos-text hover:text-chronos-primary focus:outline-none" onclick="toggleMobileMenu()">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#faf0e6] border-b border-[#e8dcc7]">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#inicio" class="block px-3 py-2 rounded-md text-base font-medium text-chronos-text hover:text-chronos-primary hover:bg-[#f0e4d4]">Início</a>
+                <a href="#disciplinas" class="block px-3 py-2 rounded-md text-base font-medium text-chronos-text hover:text-chronos-primary hover:bg-[#f0e4d4]">Disciplinas</a>
+                <a href="#cursos" class="block px-3 py-2 rounded-md text-base font-medium text-chronos-text hover:text-chronos-primary hover:bg-[#f0e4d4]">Cursos</a>
+                <a href="#pesquisadores" class="block px-3 py-2 rounded-md text-base font-medium text-chronos-text hover:text-chronos-primary hover:bg-[#f0e4d4]">Pesquisadores</a>
+                <button onclick="openLoginModal()" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-chronos-primary hover:bg-[#f0e4d4]">Entrar</button>
+                <button onclick="openSignupModal()" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-white bg-chronos-primary hover:bg-[#7a4e25] mt-2">Cadastrar</button>
+            </div>
+        </div>
+    </nav>
+
+    <header id="inicio" class="relative bg-chronos-dark overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-[0.03]">
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 lg:py-32 flex flex-col lg:flex-row items-center">
+            <div class="lg:w-1/2 text-center lg:text-left mb-10 lg:mb-0">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight mb-6">
+                    Compreenda o Passado, <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-chronos-secondary to-chronos-accent">Construa o Futuro.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-[#d2b48c] mb-8 max-w-2xl mx-auto lg:mx-0 opacity-90">
+                    Acesse cursos estruturados, conteúdos aprofundados, atividades interativas e acompanhe seu progresso na plataforma definitiva de História e Sociologia.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <button onclick="openSignupModal()" class="bg-chronos-primary hover:bg-[#7a4e25] text-white px-8 py-3 rounded-full font-medium transition-all shadow-lg shadow-chronos-primary/40 text-center flex items-center justify-center gap-2">
+                        Criar Conta Gratuita <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <a href="#cursos" class="bg-transparent hover:bg-white/10 text-white px-8 py-3 rounded-full font-medium transition-all border border-chronos-secondary/50 text-center">
+                        Explorar Cursos
+                    </a>
+                </div>
+            </div>
+            <div class="lg:w-1/2 flex justify-center">
+                <div class="relative w-full max-w-md">
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-4 -left-4 w-24 h-24 bg-[#8b5a2b] rounded-full mix-blend-overlay filter blur-2xl opacity-60 animate-blob"></div>
+                    <div class="absolute -bottom-8 -right-4 w-32 h-32 bg-[#cd853f] rounded-full mix-blend-overlay filter blur-2xl opacity-60 animate-blob animation-delay-2000"></div>
+                    <div class="absolute -bottom-8 -left-20 w-28 h-28 bg-[#a0522d] rounded-full mix-blend-overlay filter blur-2xl opacity-60 animate-blob animation-delay-4000"></div>
+                    
+                    <img src="https://placehold.co/600x400/3e2723/d7ccc8?text=Hist%C3%B3ria+%26+Sociologia" alt="Ilustração Estudos" class="relative rounded-2xl shadow-2xl border border-[#5d4037] transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover h-64 md:h-80 sepia-[0.3]">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="py-16 bg-[#f4eadd] border-b border-[#e8dcc7]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-sm font-bold text-chronos-primary tracking-wider uppercase mb-2">Como Funciona</h2>
+                    <h3 class="text-3xl font-serif font-bold text-chronos-dark">Uma Plataforma Completa para seu Aprendizado</h3>
+                </div>
+                
+                <div class="grid md:grid-cols-4 gap-6 text-center">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e8dcc7] card-hover">
+                        <div class="w-12 h-12 bg-[#f5deb3] text-chronos-primary rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <h4 class="font-bold text-chronos-dark mb-2">1. Cadastro</h4>
+                        <p class="text-sm text-chronos-text opacity-90">Visitantes criam contas como Alunos para acessar a plataforma.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e8dcc7] card-hover">
+                        <div class="w-12 h-12 bg-[#e6d5b8] text-chronos-primary rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h4 class="font-bold text-chronos-dark mb-2">2. Cursos & Conteúdos</h4>
+                        <p class="text-sm text-chronos-text opacity-90">Professores publicam cursos estruturados e materiais de estudo.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e8dcc7] card-hover">
+                        <div class="w-12 h-12 bg-[#dcb68a] text-chronos-dark rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <h4 class="font-bold text-chronos-dark mb-2">3. Atividades</h4>
+                        <p class="text-sm text-chronos-text opacity-90">Alunos resolvem questionários e realizam atividades práticas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e8dcc7] card-hover">
+                        <div class="w-12 h-12 bg-[#c6a377] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h4 class="font-bold text-chronos-dark mb-2">4. Resultados</h4>
+                        <p class="text-sm text-chronos-text opacity-90">O sistema gera resultados e salva o progresso do aluno automaticamente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cursos" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-sm font-bold text-chronos-primary tracking-wider uppercase mb-2">Catálogo</h2>
+                    <h3 class="text-3xl md:text-4xl font-serif font-bold text-chronos-dark">Cursos Disponíveis</h3>
+                    <div class="w-24 h-1 bg-chronos-accent mx-auto mt-4 rounded-full"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Course 1 -->
+                    <div class="bg-[#fdf5e6] rounded-2xl overflow-hidden border border-[#e8dcc7] shadow-sm hover:shadow-lg transition-all card-hover flex flex-col">
+                        <img src="https://placehold.co/400x200/8b5a2b/fdf5e6?text=Brasil+Colonial" alt="Curso Brasil Colonial" class="w-full h-40 object-cover">
+                        <div class="p-6 flex-grow flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-bold bg-[#f5deb3] text-[#8b4513] px-2 py-1 rounded uppercase tracking-wider">História</span>
+                                <span class="text-xs text-chronos-text flex items-center"><i class="fa-regular fa-clock mr-1"></i> 40h</span>
+                            </div>
+                            <h4 class="text-xl font-serif font-bold text-chronos-dark mb-2">História do Brasil Colonial</h4>
+                            <p class="text-chronos-text text-sm mb-4 opacity-90 flex-grow">Curso completo sobre a formação do Brasil, abordando a economia, sociedade e política do período colonial.</p>
+                            <div class="border-t border-[#e8dcc7] pt-4 mt-auto flex justify-between items-center">
+                                <span class="text-xs text-chronos-text">Prof. Ana Costa</span>
+                                <button class="text-chronos-primary font-semibold hover:text-[#5c2e0b] text-sm" onclick="openLoginModal()">Acessar Conteúdo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 2 -->
+                    <div class="bg-[#fdf5e6] rounded-2xl overflow-hidden border border-[#e8dcc7] shadow-sm hover:shadow-lg transition-all card-hover flex flex-col">
+                        <img src="https://placehold.co/400x200/5c4033/fdf5e6?text=Sociologia+Clássica" alt="Curso Sociologia" class="w-full h-40 object-cover">
+                        <div class="p-6 flex-grow flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-bold bg-[#e6d5b8] text-[#5c4033] px-2 py-1 rounded uppercase tracking-wider">Sociologia</span>
+                                <span class="text-xs text-chronos-text flex items-center"><i class="fa-regular fa-clock mr-1"></i> 60h</span>
+                            </div>
+                            <h4 class="text-xl font-serif font-bold text-chronos-dark mb-2">Fundamentos da Sociologia</h4>
+                            <p class="text-chronos-text text-sm mb-4 opacity-90 flex-grow">Estudo aprofundado dos pensadores clássicos: Marx, Durkheim e Weber e suas metodologias.</p>
+                            <div class="border-t border-[#e8dcc7] pt-4 mt-auto flex justify-between items-center">
+                                <span class="text-xs text-chronos-text">Prof. Carlos Lima</span>
+                                <button class="text-chronos-primary font-semibold hover:text-[#5c2e0b] text-sm" onclick="openLoginModal()">Acessar Conteúdo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 3 -->
+                    <div class="bg-[#fdf5e6] rounded-2xl overflow-hidden border border-[#e8dcc7] shadow-sm hover:shadow-lg transition-all card-hover flex flex-col">
+                        <img src="https://placehold.co/400x200/cd853f/fdf5e6?text=Movimentos+Sociais" alt="Movimentos Sociais" class="w-full h-40 object-cover">
+                        <div class="p-6 flex-grow flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-bold bg-[#f5deb3] text-[#8b4513] px-2 py-1 rounded uppercase tracking-wider">Interdisciplinar</span>
+                                <span class="text-xs text-chronos-text flex items-center"><i class="fa-regular fa-clock mr-1"></i> 30h</span>
+                            </div>
+                            <h4 class="text-xl font-serif font-bold text-chronos-dark mb-2">Movimentos Sociais e Cidadania</h4>
+                            <p class="text-chronos-text text-sm mb-4 opacity-90 flex-grow">Análise histórica e sociológica das lutas por direitos, feminismo, movimento negro e sustentabilidade.</p>
+                            <div class="border-t border-[#e8dcc7] pt-4 mt-auto flex justify-between items-center">
+                                <span class="text-xs text-chronos-text">Prof. Maria Souza</span>
+                                <button class="text-chronos-primary font-semibold hover:text-[#5c2e0b] text-sm" onclick="openLoginModal()">Acessar Conteúdo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-[#2c1e16] text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-[#3a281d] rounded-3xl p-8 md:p-12 border border-[#4a3525] shadow-2xl relative overflow-hidden">
+                    <!-- Decorative element -->
+                    <i class="fa-solid fa-graduation-cap absolute -bottom-10 -right-10 text-9xl text-[#4a3525] opacity-50"></i>
+                    
+                    <div class="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <span class="bg-[#8b5a2b] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-4 inline-block">Área do Aluno</span>
+                            <h3 class="text-3xl font-serif font-bold mb-4">Acompanhe seu Progresso</h3>
+                            <p class="text-[#d2b48c] mb-6 leading-relaxed">
+                                A plataforma CHRONOS oferece uma área exclusiva onde você pode visualizar os conteúdos dos cursos, responder a questionários interativos, salvar seu progresso e verificar seus resultados de forma contínua.
+                            </p>
+                            <ul class="space-y-3 mb-8 text-sm">
+                                <li class="flex items-center"><i class="fa-solid fa-check text-[#cd853f] mr-3"></i> Acesso a materiais didáticos estruturados.</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-[#cd853f] mr-3"></i> Atividades e questionários avaliativos.</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-[#cd853f] mr-3"></i> Relatórios de desempenho e notas (Ex: 8.5/10).</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-[#cd853f] mr-3"></i> <comment-tag id="1">Registro automático de última acesso</comment-tag id="1" text="A palavra 'acesso' é um substantivo masculino, portanto deve haver concordância de gênero com o adjetivo 'último'. 
+Altere para: 'Registro automático de último acesso'" type="suggestion"> (Ex: 75% concluído).</li>
+                            </ul>
+                            <button onclick="openSignupModal()" class="bg-[#d2b48c] text-chronos-dark hover:bg-[#e6d5b8] px-6 py-2 rounded-lg font-bold transition-colors shadow-lg">
+                                Junte-se à Turma
+                            </button>
+                        </div>
+                        <div class="bg-[#1f150f] rounded-xl p-6 border border-[#3e2a1d]">
+                            <h4 class="text-lg font-bold mb-4 border-b border-[#3e2a1d] pb-2">Meu Painel (Exemplo)</h4>
+                            
+                            <!-- Mock Progress -->
+                            <div class="mb-6">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Curso: História do Brasil Colonial</span>
+                                    <span class="text-[#cd853f]">75%</span>
+                                </div>
+                                <div class="w-full bg-[#3a281d] rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-[#8b5a2b] to-[#cd853f] h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Mock Activities -->
+                            <div class="space-y-3">
+                                <h5 class="text-sm font-semibold text-[#d2b48c]">Próximas Atividades:</h5>
+                                <div class="bg-[#2c1e16] p-3 rounded border border-[#3e2a1d] flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-file-lines text-[#8b5a2b]"></i>
+                                        <div>
+                                            <p class="text-sm font-medium">Questionário 1: Ciclo do Ouro</p>
+                                            <p class="text-xs text-gray-400">Tipo: Múltipla escolha</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-[#8b5a2b]/20 text-[#d2b48c] text-xs px-2 py-1 rounded">Pendente</span>
+                                </div>
+                                <div class="bg-[#2c1e16] p-3 rounded border border-[#3e2a1d] flex justify-between items-center opacity-70">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                                        <div>
+                                            <p class="text-sm font-medium">Atividade 1: Estrutura Social</p>
+                                            <p class="text-xs text-gray-400">Nota: 8.5 | Concluído em: 01/07/25</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-green-500">Concluído</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="temas" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                    <div>
+                        <h2 class="text-sm font-bold text-chronos-primary tracking-wider uppercase mb-2">Organização Curricular</h2>
+                        <h3 class="text-3xl md:text-4xl font-serif font-bold text-chronos-dark">Temas de Estudo (ENEM & BNCC)</h3>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex bg-[#f4eadd] rounded-lg p-1 border border-[#e8dcc7]">
+                        <button id="historia-tab" onclick="switchSubject('historia')" class="subject-tab px-6 py-2 rounded-md font-medium text-sm transition-all bg-white shadow-sm text-chronos-dark">
+                            História
+                        </button>
+                        <button id="sociologia-tab" onclick="switchSubject('sociologia')" class="subject-tab px-6 py-2 rounded-md font-medium text-sm transition-all text-[#8c7361] hover:text-chronos-dark">
+                            Sociologia
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Topics -->
+                <div id="content-historia" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+                    <!-- Module 1 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-chronos-primary hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#f5deb3] flex items-center justify-center text-[#8b4513]">
+                                <i class="fa-solid fa-earth-americas"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Brasil Colonial</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Economia açucareira e estrutura social</li>
+                            <li>Escravidão e resistência (Quilombos)</li>
+                            <li>Expansão territorial no Brasil Colônia</li>
+                            <li class="font-medium text-[#8b4513] mt-2">Tema com alta incidência no ENEM</li>
+                        </ul>
+                    </div>
+                    <!-- Module 2 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-chronos-primary hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#f5deb3] flex items-center justify-center text-[#8b4513]">
+                                <i class="fa-solid fa-monument"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Antiguidade Clássica</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Noções de cidadania e política (Grécia)</li>
+                            <li>O papel das mulheres na Grécia e Roma</li>
+                            <li>Escravidão e trabalho livre no mundo antigo</li>
+                            <li>O alcance do Império Romano</li>
+                        </ul>
+                    </div>
+                    <!-- Module 3 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-chronos-primary hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#f5deb3] flex items-center justify-center text-[#8b4513]">
+                                <i class="fa-solid fa-industry"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Era Vargas e República</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>O Estado Novo e autoritarismo</li>
+                            <li>A Primeira República (Oligárquica)</li>
+                            <li>Ditadura Civil-Militar no Brasil (1964-1985)</li>
+                            <li>Redemocratização e Constituição de 1988</li>
+                        </ul>
+                    </div>
+                    <!-- Module 4 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-chronos-primary hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#f5deb3] flex items-center justify-center text-[#8b4513]">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">História da África</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Civilizações e Povos antigos (Egito e outros)</li>
+                            <li>Reinos, impérios e cidades-estados</li>
+                            <li>O tráfico de escravizados moderno</li>
+                            <li>Imperialismo e a partilha da África</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Sociology Topics (Initially Hidden) -->
+                <div id="content-sociologia" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 hidden fade-in">
+                    <!-- Module 1 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-[#a0522d] hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#e6d5b8] flex items-center justify-center text-[#5c4033]">
+                                <i class="fa-solid fa-briefcase"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Trabalho e Sociedade</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Organização do trabalho (Taylorismo, Fordismo)</li>
+                            <li>Conceito de trabalho contemporâneo</li>
+                            <li>Relações de produção e luta de classes</li>
+                            <li class="font-medium text-[#5c4033] mt-2">Tema muito frequente (8.77% no ENEM)</li>
+                        </ul>
+                    </div>
+                    <!-- Module 2 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-[#a0522d] hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#e6d5b8] flex items-center justify-center text-[#5c4033]">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Cidadania e Movimentos</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Direitos Humanos e de minorias</li>
+                            <li>Movimentos feministas, negros e LGBTQIA+</li>
+                            <li>Movimentos por terra e ambiente</li>
+                            <li class="font-medium text-[#5c4033] mt-2">Top 1 em incidência (20.6% no ENEM)</li>
+                        </ul>
+                    </div>
+                    <!-- Module 3 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-[#a0522d] hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#e6d5b8] flex items-center justify-center text-[#5c4033]">
+                                <i class="fa-solid fa-masks-theater"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Cultura e Identidade</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Cultura de massa e indústria cultural</li>
+                            <li>Identidade cultural e diversidade</li>
+                            <li>Ideologia e meios de comunicação</li>
+                            <li>Racismo estrutural e relações étnico-raciais</li>
+                        </ul>
+                    </div>
+                    <!-- Module 4 -->
+                    <div class="bg-[#fdf5e6] border border-[#e8dcc7] rounded-xl p-6 hover:border-[#a0522d] hover:shadow-md transition-all cursor-pointer">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-[#e6d5b8] flex items-center justify-center text-[#5c4033]">
+                                <i class="fa-solid fa-scale-unbalanced"></i>
+                            </div>
+                            <h4 class="font-bold text-lg text-chronos-dark">Desigualdade Social</h4>
+                        </div>
+                        <ul class="text-chronos-text text-sm space-y-2 list-disc list-inside opacity-90">
+                            <li>Estratificação e mobilidade social</li>
+                            <li>Exclusão social e pobreza</li>
+                            <li>Desigualdade econômica e de gênero</li>
+                            <li>O papel do Estado e justiça social</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-gradient-to-r from-chronos-dark to-[#3e2a1d] text-[#fdf5e6]">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <h3 class="text-3xl font-serif font-bold mb-4">Pronto para testar seus conhecimentos?</h3>
+                <p class="text-[#d2b48c] mb-8">Acesse nossa área de atividades com simulados do ENEM, quizzes sobre autores clássicos e fóruns de discussão temáticos.</p>
+                <button class="bg-[#d2b48c] text-chronos-dark hover:bg-[#e6d5b8] px-8 py-3 rounded-full font-bold transition-colors shadow-lg">
+                    Acessar Atividades Interativas
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#231710] text-[#a69279] py-12 border-t border-[#3e2a1d]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4 text-[#fdf5e6]">
+                        <i class="fa-solid fa-hourglass-half text-chronos-accent"></i>
+                        <span class="font-serif font-bold text-xl tracking-tight">CHRONOS</span>
+                    </div>
+                    <p class="text-sm">Plataforma dedicada ao ensino, pesquisa e difusão das Ciências Humanas (História e Sociologia) para estudantes do Ensino Fundamental e Médio.</p>
+                </div>
+                <div>
+                    <h4 class="text-[#fdf5e6] font-bold mb-4">Navegação</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#inicio" class="hover:text-[#fdf5e6] transition-colors">Início</a></li>
+                        <li><a href="#cursos" class="hover:text-[#fdf5e6] transition-colors">Cursos</a></li>
+                        <li><a href="#pesquisadores" class="hover:text-[#fdf5e6] transition-colors">Pesquisadores</a></li>
+                        <li><a href="#temas" class="hover:text-[#fdf5e6] transition-colors">Temas Curriculares</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[#fdf5e6] font-bold mb-4">Plataforma</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" onclick="openLoginModal()" class="hover:text-[#fdf5e6] transition-colors">Área do Aluno</a></li>
+                        <li><a href="#" onclick="openLoginModal()" class="hover:text-[#fdf5e6] transition-colors">Área do Professor</a></li>
+                        <li><a href="#" onclick="openLoginModal()" class="hover:text-[#fdf5e6] transition-colors">Questionários</a></li>
+                        <li><a href="#" class="hover:text-[#fdf5e6] transition-colors">Relatórios de Desempenho</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[#fdf5e6] font-bold mb-4">Recursos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-[#fdf5e6] transition-colors">Simulados ENEM</a></li>
+                        <li><a href="#" class="hover:text-[#fdf5e6] transition-colors">Resumos em PDF</a></li>
+                        <li><a href="#" class="hover:text-[#fdf5e6] transition-colors">Cronograma de Estudos</a></li>
+                        <li><a href="#" class="hover:text-[#fdf5e6] transition-colors">Fórum de Dúvidas</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[#fdf5e6] font-bold mb-4">Siga-nos</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-8 h-8 rounded-full bg-[#3e2a1d] flex items-center justify-center hover:bg-chronos-primary hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-[#3e2a1d] flex items-center justify-center hover:bg-chronos-primary hover:text-white transition-all"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-[#3e2a1d] flex items-center justify-center hover:bg-chronos-primary hover:text-white transition-all"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-[#3e2a1d] pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p>&copy; 2026 CHRONOS. Todos os direitos reservados.</p>
+                <div class="mt-4 md:mt-0 space-x-4">
+                    <a href="#" class="hover:text-[#fdf5e6] transition-colors">Termos de Uso</a>
+                    <a href="#" class="hover:text-[#fdf5e6] transition-colors">Política de Privacidade</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- STREAMING_CHUNK: Adding Modals for Authentication Flow (Visitante -> Cadastro -> Login) -->
+    <!-- Modal Backdrop -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        
+        <!-- Login Modal -->
+        <div id="login-modal" class="bg-[#fdf5e6] w-full max-w-md rounded-2xl shadow-2xl border border-[#e8dcc7] hidden transform scale-95 transition-all duration-300 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-serif font-bold text-chronos-dark">Acessar Plataforma</h3>
+                <button onclick="closeModals()" class="text-chronos-text hover:text-red-800 focus:outline-none">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form onsubmit="handleAuth(event, 'login')">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Email</label>
+                    <input type="email" placeholder="joao@email.com" class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Senha</label>
+                    <input type="password" placeholder="123456" class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark" required>
+                    <div class="text-right mt-1">
+                        <a href="#" class="text-xs text-chronos-primary hover:underline">Esqueceu a senha?</a>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-chronos-primary hover:bg-[#7a4e25] text-white py-2 rounded-lg font-medium transition-colors shadow-md">
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-sm text-chronos-text border-t border-[#e8dcc7] pt-4">
+                Ainda não tem conta? <a href="#" onclick="switchModal('signup')" class="text-chronos-primary font-bold hover:underline">Cadastre-se</a>
+            </div>
+        </div>
+
+        <!-- Signup Modal -->
+        <div id="signup-modal" class="bg-[#fdf5e6] w-full max-w-md rounded-2xl shadow-2xl border border-[#e8dcc7] hidden transform scale-95 transition-all duration-300 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-serif font-bold text-chronos-dark">Novo Cadastro</h3>
+                <button onclick="closeModals()" class="text-chronos-text hover:text-red-800 focus:outline-none">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form onsubmit="handleAuth(event, 'signup')">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Nome Completo</label>
+                    <input type="text" placeholder="Maria Souza" class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Email</label>
+                    <input type="email" placeholder="maria@email.com" class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Tipo de Usuário</label>
+                    <select class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark">
+                        <option value="aluno">Aluno</option>
+                        <option value="professor">Professor</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-chronos-text mb-1">Senha</label>
+                    <input type="password" placeholder="Mínimo 6 caracteres" class="w-full px-4 py-2 bg-white border border-[#d2b48c] rounded-lg focus:outline-none focus:ring-2 focus:ring-chronos-primary text-chronos-dark" required>
+                </div>
+                <button type="submit" class="w-full bg-[#8b5a2b] hover:bg-[#6b421a] text-white py-2 rounded-lg font-medium transition-colors shadow-md">
+                    Realizar Cadastro
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-sm text-chronos-text border-t border-[#e8dcc7] pt-4">
+                Já possui conta? <a href="#" onclick="switchModal('login')" class="text-[#cd853f] font-bold hover:underline">Fazer Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ... existing JS functions ...
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function showResearchers(type, btnElement) {
+            // Update Buttons
+            document.getElementById('btn-soc').classList.remove('tab-active', 'text-chronos-primary');
+            document.getElementById('btn-hist').classList.remove('tab-active', 'text-chronos-primary');
+            
+            btnElement.classList.add('tab-active');
+
+            // Update Content
+            const socGrid = document.getElementById('sociologists-grid');
+            const histGrid = document.getElementById('historians-grid');
+
+            if (type === 'sociologists') {
+                socGrid.classList.remove('hidden');
+                histGrid.classList.add('hidden');
+            } else {
+                histGrid.classList.remove('hidden');
+                socGrid.classList.add('hidden');
+            }
+        }
+
+        // Switch Subject Themes (History/Sociology)
+        function switchSubject(subject) {
+            const tabs = document.querySelectorAll('.subject-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-white', 'shadow-sm', 'text-chronos-dark');
+                tab.classList.add('text-[#8c7361]');
+            });
+
+            const activeTab = document.getElementById(`${subject}-tab`);
+            activeTab.classList.remove('text-[#8c7361]');
+            activeTab.classList.add('bg-white', 'shadow-sm', 'text-chronos-dark');
+
+            const contentHistoria = document.getElementById('content-historia');
+            const contentSociologia = document.getElementById('content-sociologia');
+
+            if (subject === 'historia') {
+                contentHistoria.classList.remove('hidden');
+                contentSociologia.classList.add('hidden');
+            } else {
+                contentSociologia.classList.remove('hidden');
+                contentHistoria.classList.add('hidden');
+            }
+        }
+
+        function switchTab(tabId) {
+            document.getElementById(tabId).click();
+            const element = document.getElementById('temas');
+            const y = element.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({top: y, behavior: 'smooth'});
+        }
+
+        const backdrop = document.getElementById('modal-backdrop');
+        const loginModal = document.getElementById('login-modal');
+        const signupModal = document.getElementById('signup-modal');
+
+        function openLoginModal() {
+            backdrop.classList.remove('hidden');
+            loginModal.classList.remove('hidden');
+            signupModal.classList.add('hidden');
+            
+            // Small delay to allow display block to apply before animating opacity/transform
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                loginModal.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function openSignupModal() {
+            backdrop.classList.remove('hidden');
+            signupModal.classList.remove('hidden');
+            loginModal.classList.add('hidden');
+            
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                signupModal.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function switchModal(to) {
+            if (to === 'login') {
+                signupModal.classList.add('hidden');
+                loginModal.classList.remove('hidden');
+                // Reset animations
+                loginModal.classList.remove('scale-95', 'opacity-0');
+            } else {
+                loginModal.classList.add('hidden');
+                signupModal.classList.remove('hidden');
+                // Reset animations
+                signupModal.classList.remove('scale-95', 'opacity-0');
+            }
+        }
+
+        function closeModals() {
+            backdrop.classList.add('opacity-0');
+            loginModal.classList.add('scale-95', 'opacity-0');
+            signupModal.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                loginModal.classList.add('hidden');
+                signupModal.classList.add('hidden');
+            }, 300); // match transition duration
+        }
+
+        // Close on outside click
+        backdrop.addEventListener('click', (e) => {
+            if (e.target === backdrop) {
+                closeModals();
+            }
+        });
+
+        function handleAuth(event, type) {
+            event.preventDefault();
+            // Simulate auth process defined in Use Case Diagram (Validar dados, Verificar credenciais)
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                closeModals();
+                // Simulate UI update post-login
+                alert(`Sistema: ${type === 'login' ? 'Login' : 'Cadastro'} realizado com sucesso!\nEsta é uma simulação do fluxo descrito nos diagramas.`);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
